@@ -21,10 +21,6 @@
 
 set -e
 
-# NEST environment
-source /home/nest/nest-install/bin/nest_vars.sh
-
-
 if [ "$1" = 'notebook' ]; then
     exec jupyter notebook --ip="*" --port=8080 --no-browser
 fi
@@ -34,7 +30,11 @@ if [ "$1" = 'interactive' ]; then
 	echo Starting: $name
 
 	# Start
-	exec /home/nest/miniconda/envs/py3/bin/python /home/nest/data/$name
+	exec python /home/nest/data/$name
+fi
+
+if [ "$1" = 'server' ]; then
+	exec python /home/nest/nest-web-api/main.py --ip="*" --port=8080
 fi
 
 exec "$@"

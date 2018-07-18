@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# entrypoint.sh
+# install.sh
 #
 # This file is part of NEST.
 #
@@ -19,23 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-set -e
+# Install libneurosim (/usr/local/lib)
 
-# NEST environment
-# source /home/nest/nest-install/bin/nest_vars.sh
-
-
-if [ "$1" = 'notebook' ]; then
-    # cd /home/nest
-    exec jupyter notebook --ip="*" --port=8080 --no-browser
-fi
-
-if [ "$1" = 'interactive' ]; then
-    read -p "Your python script: " name
-	echo Starting: $name
-
-	# Start
-	exec /usr/bin/python3 /home/nest/data/$name
-fi
-
-exec "$@"
+cd /tmp
+git clone https://github.com/INCF/libneurosim.git libneurosim
+cd /tmp/libneurosim
+chmod +x autogen.sh
+./autogen.sh
+chmod +x configure
+./configure
+make
+make install

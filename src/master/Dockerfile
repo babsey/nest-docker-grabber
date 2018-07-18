@@ -2,54 +2,78 @@
 FROM ubuntu:16.04
 
 RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    ssh \
-    curl \
-    wget \
-    locales \
-    git \
-    unzip \
-    build-essential \
+    apt-transport-https \
+    apt-utils \
+    ca-certificates  \
     autoconf \
+    build-essential \
     cmake \
+    cython \
+    git \
     libltdl-dev \
-    libreadline6-dev \
     libncurses5-dev \
-    libgsl-dev \
-    openmpi-bin \
-    libopenmpi-dev \
-    vera++ \
-    pep8 \
     libpcre3 \
     libpcre3-dev \
-    jq \
-    libmusic1v5 \
-    music-bin \
-    libmusic-dev && \
-    apt-get autoremove -y
+    libreadline6-dev \
+    locales \
+    pep8 \
+    software-properties-common \
+    vera++ \
+    wget
 
 RUN locale-gen en_US.UTF-8
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-# Install miniconda and create Python 3 environment
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-bash ./Miniconda3-latest-Linux-x86_64.sh -b -p /home/nest/miniconda  && \
-echo ". /home/nest/miniconda/bin:$PATH" >> /home/nest/.bashrc
-ENV PATH=/home/nest/miniconda/bin:${PATH}
-RUN conda update -y conda && \
-    conda install -y setuptools path.py cython statsmodels jupyter mpi4py \
-                     pandas numpy
+RUN if [ "$NEST_PYTHON_VERSION" = "3" ] \
+    ; then apt-get install -y \
+        python3 \
+        python3-h5py \
+        python3-nose \
+        python3-numpy \
+        python3-pandas \
+        python3-pip \
+        python3-sphinx \
+        python3-wheel && \
+        pip3 install --upgrade pip jupyter \
+    ; else apt-get install -y \
+        python-h5py \
+        python-nose \
+        python-numpy \
+        python-pandas \
+        python-pip \
+        python-sphinx \
+        python-wheel && \
+        pip install --upgrade pip jupyter \
+    ; fi
 
-# Install libneurosim (/usr/local/lib)
-WORKDIR /tmp
-RUN git clone https://github.com/INCF/libneurosim.git libneurosim
-WORKDIR /tmp/libneurosim
-RUN chmod +x autogen.sh && \
-    ./autogen.sh && \
-    chmod +x configure && \
-    ./configure && make &&  make install
+WORKDIR /tmp/
+COPY ./libneurosim .
+RUN if [ "$NEST_WITH_GSL" = "On" ] \
+    ; then apt-get install -y \
+        libgsl-dev \
+    ; fi && \
+    if [ "$NEST_WITH_MPI" = "On" ] \
+    ; then apt-get install -y \
+        libopenmpi-dev \
+        openmpi-bin \
+    ; fi && \
+    if [ "$NEST_WITH_MUSIC" = "On" ] \
+    ; then apt-get install -y \
+        libmusic-dev \
+        libmusic1v5 \
+        music-bin \
+    ; fi && \
+    if [ "$NEST_WITH_LIBNEUROSIM" = "On" ] \
+    ; then bash ./libneurosim/install.sh \
+    ; fi
+
+RUN apt-get autoremove -y && rm -rf /tmp/*
+
+# add user 'nest'
+RUN adduser --disabled-login --gecos 'NEST' --home /home/nest nest && \
+    adduser nest sudo && \
+    mkdir /home/nest/data && \
+    chown -R nest:nest /home/nest
 
 EXPOSE 8080
-RUN apt-get autoremove && rm -rf /tmp/*
-
-WORKDIR /home/nest/
+WORKDIR /home/nest
