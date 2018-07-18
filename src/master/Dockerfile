@@ -73,7 +73,8 @@ RUN apt-get autoremove -y && rm -rf /tmp/*
 RUN adduser --disabled-login --gecos 'NEST' --home /home/nest nest && \
     adduser nest sudo && \
     mkdir /home/nest/data && \
-    chown -R nest:nest /home/nest
+    chown -R nest:nest /home/nest && \
+    chown -R nest:nest /home/nest/data
 
 EXPOSE 8080
 WORKDIR /home/nest

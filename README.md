@@ -28,7 +28,7 @@ Currently the following docker images are provided
     nest-docker [--help] <command> [<args>] [<version>]
 
     --help      print this usage information.
-    <command>   can be either 'provision', 'run' or ''.
+    <command>   can be either 'provision', 'run' or 'clean'.
     [<args>]    can be either 'notebook', 'interactice' or 'virtual'.
     [<version>] kind of docker image (e.g. 'latest', 'nightly', '2.x.0').
 

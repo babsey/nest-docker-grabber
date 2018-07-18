@@ -30,7 +30,8 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN adduser --disabled-login --gecos 'NEST' --home /home/nest nest && \
     adduser nest sudo && \
     mkdir /home/nest/data && \
-    chown -R nest:nest /home/nest
+    chown -R nest:nest /home/nest && \
+    chown -R nest:nest /home/nest/data
 
 COPY ./entrypoint-py3.sh /home/nest/entrypoint.sh
 RUN chown nest:nest /home/nest/entrypoint.sh && \
