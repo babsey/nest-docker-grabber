@@ -15,13 +15,13 @@ RUN apt-get update && apt-get install -y \
     python3-sphinx \
     python3-wheel \
     software-properties-common && \
-    apt-get autoremove -y && \
     pip3 install --upgrade pip setuptools jupyter
 
 # install nest
 RUN add-apt-repository "deb http://ppa.launchpad.net/nest-simulator/nest-nightly/ubuntu xenial main" && \
     apt-get update && \
     apt-get install nest -y --allow-unauthenticated && \
+    apt-get autoremove -y && \
     locale-gen en_US.UTF-8
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
@@ -30,15 +30,12 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN adduser --disabled-login --gecos 'NEST' --home /home/nest nest && \
     adduser nest sudo && \
     mkdir /home/nest/data && \
-    chown -R nest:nest /home/nest && \
-    chown -R nest:nest /home/nest/data
+    chown -R nest:nest /home/nest
 
 COPY ./entrypoint-py3.sh /home/nest/entrypoint.sh
 RUN chown nest:nest /home/nest/entrypoint.sh && \
     chmod +x /home/nest/entrypoint.sh
 
-USER nest
-WORKDIR /home/nest/data
-
 EXPOSE 8080
+WORKDIR /home/nest/data
 ENTRYPOINT ["/home/nest/entrypoint.sh"]

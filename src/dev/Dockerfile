@@ -30,6 +30,5 @@ COPY ./entrypoint-py$PYTHON_VERSION.sh /home/nest/entrypoint.sh
 RUN chown nest:nest /home/nest/entrypoint.sh && \
     chmod +x /home/nest/entrypoint.sh
 
-USER nest
 WORKDIR /home/nest/data
 ENTRYPOINT ["/home/nest/entrypoint.sh"]
